@@ -5,20 +5,34 @@ import { Tasks } from '../api/tasks.js';
 import './task.js';
 import './body.html';
 
-Template.body.onCreated(function bodyOnCreated() {
-  this.state = new ReactiveDict();
+
+// set Session variable in method callback
+Tracker.autorun( function() {
+  Meteor.call('tasks.find', false, function(error, result){
+    Session.set('tasksFindResult', result);
+  });
+});
+// set Session variable in method callback
+Tracker.autorun( function() {
+  Meteor.call('tasks.find', true, function(error, result){
+    Session.set('tasksCompletedResult', result);
+  });
+});
+Tracker.autorun( function() {
+  Meteor.call('tasks.count', function(error, result){
+    Session.set('tasksCountResult', result);
+  });
 });
 
 Template.body.helpers({
   tasks() {
-    const instance = Template.instance();
-    if(instance.state.get('hideCompleted')) {
-      return Tasks.find({ checked: { $ne: true } }, { sort: { createdAt: -1 } });
-    }
-    return Tasks.find({}, { sort: { createdAt: -1 }});
+    return Session.get('tasksFindResult');
+  },
+  tasksCompleted() {
+    return Session.get('tasksCompletedResult');
   },
   incompleteCount() {
-    return Tasks.find({ checked: { $ne: true } }).count();
+    return Session.get('tasksCountResult');
   }
 });
 
@@ -32,8 +46,5 @@ Template.body.events({
     Meteor.call('tasks.insert', text);
 
     target.text.value = '';
-  },
-  'change .hide-completed input'(event, instance) {
-    instance.state.set('hideCompleted', event.target.checked);
   },
 });

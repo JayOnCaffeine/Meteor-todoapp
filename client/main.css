@@ -43,6 +43,16 @@ h1 {
   margin-right: 1em;
 }
 
+h1.completed {
+  margin-top: 20px;
+  padding: 20px;
+  visibility: hidden;
+}
+
+h1.show {
+  visibility: visible;
+}
+
 form {
   margin-top: 10px;
   margin-bottom: -10px;
